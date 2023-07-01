@@ -9,8 +9,6 @@ const sites = fs.readFileSync('./webring.txt', 'utf-8')
 	// exclude empty lines and lines that start with # because why not
 	.filter(site => site && !site.startsWith('#'));
 
-console.log(sites);
-
 // modulo that does the right thing with negatives
 // https://stackoverflow.com/a/4467559
 const mod = (n, m) => ((n % m) + m) % m;
@@ -29,6 +27,4 @@ express()
 	.get('/prev', (request, response) => handle(-1, request, response))
 	.get('/next', (request, response) => handle(+1, request, response))
 	.get('/list', (_, response) => response.type('txt').send(sites.join('\n')))
-	.listen(process.env.PORT || 8080, () => {
-		console.log('doing the thing');
-	})
+	.listen(process.env.PORT || 8080);
