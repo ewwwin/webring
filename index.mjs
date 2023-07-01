@@ -28,7 +28,7 @@ function handle (offset, request, response) {
 express()
 	.get('/prev', (request, response) => handle(-1, request, response))
 	.get('/next', (request, response) => handle(+1, request, response))
-	.get('/list', (request, response) => response.send(sites.join('\n')))
+	.get('/list', (_, response) => response.type('txt').send(sites.join('\n')))
 	.listen(process.env.PORT || 8080, () => {
 		console.log('doing the thing');
 	})
