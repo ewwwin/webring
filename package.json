@@ -4,9 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.mjs"
+    "start": "node index.mjs",
+    "fmt": "dprint fmt"
   },
   "keywords": [],
   "author": "",
-  "license": "WTFPL"
+  "license": "WTFPL",
+  "devDependencies": {
+    "dprint": "^0.40.2"
+  }
 }
