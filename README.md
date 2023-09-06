@@ -3,8 +3,8 @@
 ## run it
 
     npm i
-	cp webring.txt.sample webring.txt && $EDITOR webring.txt
-	npm run start
+    cp webring.txt.sample webring.txt && $EDITOR webring.txt
+    npm run start
 
 ## link to webring sites
 
