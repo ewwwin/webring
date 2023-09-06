@@ -1,30 +1,30 @@
-import * as fs from 'node:fs';
-import express from 'express';
+import {readFileSync} from 'node:fs';
+import {createServer} from 'node:http';
+import {URL} from 'node:url';
 
-const sites = fs.readFileSync('./webring.txt', 'utf-8')
-	// split lines
-	.split(/\r?\n/)
-	// trim whitespace from each line
-	.map(site => site.trim())
-	// exclude empty lines and lines that start with # because why not
-	.filter(site => site && !site.startsWith('#'));
+const data = readFileSync(process.env.SITES_FILE || 'webring.txt', 'utf-8');
+const sites = [...data.matchAll(/^\s*([^#\s].*)\s*$/gm)].map(match => match[1]);
 
-// modulo that does the right thing with negatives
-// https://stackoverflow.com/a/4467559
-const mod = (n, m) => ((n % m) + m) % m;
+const text = (response, body, code = 200) => {
+	response.writeHead(code, {'Content-Type': 'text/plain'}).write(body);
+	response.end();
+};
+const redirect = (res, url) => res.writeHead(301, {Location: url}).end();
 
-function handle (offset, request, response) {
-	const from = request.query.from;
+const toSite = (response, from, offset) => {
 	const index = sites.findIndex(site => site === from);
 	if (!from || index === -1) {
-		response.status(400).send('the provided site is not in the webring');
-		return;
+		return text(response, 'the provided site is not in the webring', 400);
 	}
-	response.redirect(301, sites[mod(index + offset, sites.length)]);
-}
+	redirect(response, sites[(index + offset + sites.length) % sites.length]);
+};
 
-express()
-	.get('/prev', (request, response) => handle(-1, request, response))
-	.get('/next', (request, response) => handle(+1, request, response))
-	.get('/list', (_, response) => response.type('txt').send(sites.join('\n')))
-	.listen(process.env.PORT || 8080);
+const pathHandlers = {
+	'/prev': (response, query) => toSite(response, query.get('from'), -1),
+	'/next': (response, query) => toSite(response, query.get('from'), +1),
+	'/list': response => text(response, sites.join('\n')),
+};
+createServer((request, response) => {
+	const url = new URL(request.url, `http://${request.headers.host}`);
+	pathHandlers[url.pathname]?.(response, url.searchParams);
+}).listen(process.env.PORT || 80);
