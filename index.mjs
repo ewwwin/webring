@@ -9,7 +9,7 @@ const text = (response, body, code = 200) => {
 	response.writeHead(code, {'Content-Type': 'text/plain'}).write(body);
 	response.end();
 };
-const redirect = (res, url) => res.writeHead(301, {Location: url}).end();
+const redirect = (res, url) => res.writeHead(302, {Location: url}).end();
 
 const toSite = (response, from, offset) => {
 	const index = sites.findIndex(site => site === from);
